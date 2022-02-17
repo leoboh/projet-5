@@ -21,18 +21,34 @@ console.log(produits);
 */
 
 fetch("http://localhost:3000/api/products")
-  .then((resp) => resp.json()) // pourquoi then accepte pas la l'attribut function "namefunction"
-  .then(function recupData(data) {
-    // on stock automatiquement les donnes dans resp ? qu'on a traduit et ensuite c'est automatiquement mis dans data ?
-    let produits = data.resultat;
-  });
+  .then((resp) => resp.json())
+  .then(function (produits) {
+    for (let produit of produits) {
+      // pour chaque produit dans produits
+      let a = document.createElement("a"); // je crée une balise "a"
+      let article = document.createElement("article");
+      let img = document.createElement("img");
+      let titre = document.createElement("h3");
+      let p = document.createElement("p");
+      let section = document.getElementById("items");
 
-function produit(couleur, id, nom, prix, img, description, alt) {
-  (this.couleur = couleur),
-    (this.id = id),
-    (this.nom = nom),
-    (this.prix = prix),
-    (this.img = img),
-    (this.description = description),
-    (this.alt = alt);
-}
+      a.href = "./product.html?id=${produit._id}";
+      img.src = produit.imageUrl;
+      titre.textContent = produit.name;
+      p.textContent = produit.description;
+
+      section.appendChild(a);
+      a.appendChild(article);
+      article.appendChild(img);
+      article.appendChild(titre);
+      article.appendChild(p);
+
+      /*let id = produit._id;
+      let couleur = produit.color;
+      let nom = produit.name;
+      let prix = produit.price;
+      let image = produit.imageUrl;
+      let desc = produit.description;
+      let alt = produit.altTxt;*/
+    }
+  });
