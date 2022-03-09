@@ -6,10 +6,10 @@ let recupId = new URLSearchParams(recupUrl);
 let idUrl = recupId.get("id");
 
 /// chercher donnes sur le serveur
-fetch("http://localhost:3000/api/products")
+fetch("http://localhost:3000/api/products/" + idUrl)
   .then((resp) => resp.json())
-  .then(function (produits) {
-    let produitUrl = produits.find((produit) => produit._id === idUrl); // Chercher dans les produits, le produit pour lequel l'id est =
+  .then(function (produitUrl) {
+    // Chercher dans les produits, le produit pour lequel l'id est =
 
     let nomProduit = document.getElementById("title");
     let prixProduit = document.getElementById("price");

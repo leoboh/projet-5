@@ -6,10 +6,10 @@ fetch("http://localhost:3000/api/products")
   .then((resp) => resp.json())
   .then(function (produits) {
     // Recuperer les id, color, qté dans les produits du localstorage
-    for (var i = 0; i < stockProduit.length; i++) {
-      let idProduit = stockProduit[i].idProduit;
-      let colorProduit = stockProduit[i].colorProduit;
-      let qteProduit = stockProduit[i].qteProduit;
+    for (let produit of stockProduit) {
+      let idProduit = produit.idProduit;
+      let colorProduit = produit.colorProduit;
+      let qteProduit = produit.qteProduit;
 
       // Chercher dans l'API les produits au id correspondant à ceux du localstorage
       let produitPanier = produits.find((produit) => produit._id === idProduit);
@@ -90,9 +90,49 @@ fetch("http://localhost:3000/api/products")
 
       input.addEventListener("change", recupValueInput);
       function recupValueInput(e) {
-        qteTotal.textContent = e.target.value;
+        produitPanier.qteProduit = e.target.value; //recupere la qteProduit au changement de l'input
+
+        let indexProduit = stockProduit.indexOf(produit); // recupere l'index du produit
+        stockProduit.splice(indexProduit, 1); // supprime le produit grace a l'index recuperer
+
+        let prixTotalProduit = produitPanier.qteProduit * produitPanier.price;
+
+        let optionProduit = {
+          // creation du produit que l'on va renvoyer au localstorage
+          idProduit: produit.idProduit,
+          colorProduit: colorProduit,
+          qteProduit: produitPanier.qteProduit,
+          prixTotal: prixTotalProduit,
+        };
+
+        //console.log(optionProduit.prixTotal);
+        console.log(stockProduit);
+        console.log(produit);
+        let sum = 0;
+        for (let d of stockProduit) {
+          //produit.prixTotal += sum;
+          d = produit.prixTotal;
+          //console.log(d);
+          console.log(optionProduit.prixTotal);
+        }
+        stockProduit.push(optionProduit); // Envoie du produit dans stockProduit
+        localStorage.setItem("produits", JSON.stringify(stockProduit)); // Envoie de stockProduit dans le localstorage
+        // pour chaque produit dans stockProduit, qteproduit * prixProduit = prixtotalProd, prixtotalProd +=
+        // qte * prix = total produit
+        // changer dans stockProduit
+        // réenregistrer stockProduit dans localStorage
+        // calculer la sommes des qtts de stockProduit // stockProduit.reduce(...) // for ()
+        // qteTotal.textContent = sumQtt(stockProduit)
+        // prixTotal.textContent =
       }
     }
   });
+
+//let form = document.querySelector("form.cart__order__form");
+//form.addEventListener("submit", function (e) {
+//  e.preventDefault();
+//  console.log("TEST");
+//});
+
 // recuperer les donnees completes des cancapes selectionnes
 // afficher les canapes*/
