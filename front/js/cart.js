@@ -1,6 +1,5 @@
 // recuperer les donnees du panier (localStorage)
 let stockProduit = JSON.parse(localStorage.getItem("produits"));
-//console.log(stockProduit);
 
 fetch("http://localhost:3000/api/products")
   .then((resp) => resp.json())
@@ -9,12 +8,12 @@ fetch("http://localhost:3000/api/products")
     for (let produit of stockProduit) {
       let idProduit = produit.idProduit;
       let colorProduit = produit.colorProduit;
-      let qteProduit = produit.qteProduit;
+      let qttProduit = produit.qttProduit;
 
       // Chercher dans l'API les produits au id correspondant à ceux du localstorage
       let produitPanier = produits.find((produit) => produit._id === idProduit);
 
-      // Pour chaque produits recuperer créer le DOM
+      // Pour chaque produits recuperer, créer le DOM
       let section = document.getElementById("cart__items");
       let article = document.createElement("article");
       let div1 = document.createElement("div");
@@ -31,7 +30,7 @@ fetch("http://localhost:3000/api/products")
       let div6 = document.createElement("div");
       let p4 = document.createElement("p");
 
-      //
+      // Definir la place des element dans le DOM
       section.appendChild(article);
       article.appendChild(div1);
       div1.appendChild(img);
@@ -66,7 +65,7 @@ fetch("http://localhost:3000/api/products")
       input.setAttribute("name", input.className);
       input.setAttribute("min", 1);
       input.setAttribute("max", 100);
-      input.setAttribute("value", qteProduit);
+      input.setAttribute("value", qttProduit);
 
       // add des données
       img.src = produitPanier.imageUrl;
@@ -76,63 +75,140 @@ fetch("http://localhost:3000/api/products")
       p3.textContent = "Qté : ";
       p4.textContent = "Supprimer";
 
-      // add total
-      let qteTotal = document.getElementById("totalQuantity");
-      let prixTotal = document.getElementById("totalPrice");
+      // recup totaux dans le DOM
+      let htmlSpanQttTotal = document.getElementById("totalQuantity");
+      let htmlSpanPrixTotal = document.getElementById("totalPrice");
 
-      //prixTotal.textContent = produitPanier.price * input.value;
-      //qteTotal.textContent = produitPanier.qteProduit * produitPanier;
-
-      //qte totale = input.value x produitPanier
-      //prix total par produit = input.value x le prix
-
-      //prix totale = on additionne tous les prix total des produit
-
+      // Calcule des totaux
       input.addEventListener("change", recupValueInput);
       function recupValueInput(e) {
-        produitPanier.qteProduit = e.target.value; //recupere la qteProduit au changement de l'input
+        let qtt = Number(e.target.value); //recupere la qttProduit au changement de l'input (number = on veux un nombre)*/
+        produit.qttProduit = qtt; // copie la valeur dans le produit
 
-        let indexProduit = stockProduit.indexOf(produit); // recupere l'index du produit
-        stockProduit.splice(indexProduit, 1); // supprime le produit grace a l'index recuperer
+        let qttTotal = 0;
+        let prixTotal = 0;
 
-        let prixTotalProduit = produitPanier.qteProduit * produitPanier.price;
+        for (let produit of stockProduit) {
+          // Recuperer la quantité total
+          qttTotal = qttTotal + produit.qttProduit;
 
-        let optionProduit = {
-          // creation du produit que l'on va renvoyer au localstorage
-          idProduit: produit.idProduit,
-          colorProduit: colorProduit,
-          qteProduit: produitPanier.qteProduit,
-          prixTotal: prixTotalProduit,
-        };
-
-        //console.log(optionProduit.prixTotal);
-        console.log(stockProduit);
-        console.log(produit);
-        let sum = 0;
-        for (let d of stockProduit) {
-          //produit.prixTotal += sum;
-          d = produit.prixTotal;
-          //console.log(d);
-          console.log(optionProduit.prixTotal);
+          // Recuperer le prix Total
+          let prixTotalProduit = produit.qttProduit * produit.prixProduit;
+          prixTotal = prixTotal + prixTotalProduit;
         }
-        stockProduit.push(optionProduit); // Envoie du produit dans stockProduit
-        localStorage.setItem("produits", JSON.stringify(stockProduit)); // Envoie de stockProduit dans le localstorage
-        // pour chaque produit dans stockProduit, qteproduit * prixProduit = prixtotalProd, prixtotalProd +=
-        // qte * prix = total produit
-        // changer dans stockProduit
-        // réenregistrer stockProduit dans localStorage
-        // calculer la sommes des qtts de stockProduit // stockProduit.reduce(...) // for ()
-        // qteTotal.textContent = sumQtt(stockProduit)
-        // prixTotal.textContent =
+
+        // Envoie des totaux dans le DOM
+        htmlSpanQttTotal.textContent = qttTotal;
+        htmlSpanPrixTotal.textContent = prixTotal;
+        localStorage.setItem("produits", JSON.stringify(stockProduit));
+      }
+
+      // Supprimer un produit
+      p4.addEventListener("click", supprimeProduit);
+      function supprimeProduit() {
+        section.removeChild(article);
+
+        stockProduit = stockProduit.filter(function (d) {
+          return d !== produit;
+        });
+
+        localStorage.setItem("produits", JSON.stringify(stockProduit));
       }
     }
   });
 
-//let form = document.querySelector("form.cart__order__form");
-//form.addEventListener("submit", function (e) {
-//  e.preventDefault();
-//  console.log("TEST");
-//});
+// Recuperer les inputs du formulaire
+let inputFirstName = document.querySelector("firstName");
+let inputLastName = document.getElementById("lastName");
+let inputAdress = document.getElementById("address");
+let inputCity = document.getElementById("city");
+let inputEmail = document.getElementById("email");
 
-// recuperer les donnees completes des cancapes selectionnes
-// afficher les canapes*/
+// Recuperer les messages d'erreur du formulaire
+let errorFirstName = document.getElementById("firstNameErrorMsg");
+let errorLastName = document.getElementById("lastNameErrorMsg");
+let errorAdress = document.getElementById("addressErrorMsg");
+let errorCity = document.getElementById("cityErrorMsg");
+let errorEmail = document.getElementById("emailErrorMsg");
+
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+// ----------------------- //
+
+// Création des REGEX
+let firstNameRegex = /^[a-zA-Z-]$/;
+let lastNameRegex = /^[a-zA-Z]$/;
+let emailRegex = /^[a-zA-Z.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2-10}$/;
+let adressRegex = /^[a-zA-Z-][0-9]$/;
+let cityRegex = /^[a-zA-Z-]$/;
+
+// Fonction qui verifie les valeurs du formulaire et les envoie dans le back
+function validForm() {
+  let testFirstName = firstNameRegex.test(inputFirstName.value);
+  if (testFirstName) {
+    let testLastName = lastNameRegex.test(inputLastName.value);
+
+    if (testLastName) {
+      let testAdress = adressRegex.test(inputAdress.value);
+
+      if (testAdress) {
+        let testCity = cityRegex.test(inputCity.value);
+
+        if (testCity) {
+          let testEmail = emailRegex.test(inputEmail.value);
+          if (testEmail) {
+            // Création de la variable qui va récupérer les valeurs du formulaire
+            let valuesForm = {
+              prenom: inputFirstName.value,
+              nom: inputLastName.value,
+              email: inputEmail.value,
+              adress: inputAdress.value,
+              city: inputCity.value,
+            };
+
+            // Création de la variable qui va envoyer les donnes au serv
+            let formulaire = JSON.parse(localStorage.getItem("user"));
+
+            //  Envoie des données au serv
+            if (formulaire) {
+              formulaire.push(valuesForm);
+              localStorage.setItem("user"), JSON.stringify(formulaire);
+            } else {
+              formulaire = [];
+              formulaire.push(valuesForm);
+              localStorage.setItem("user"), JSON.stringify(formulaire);
+            }
+          } else {
+            errorEmail.textContent =
+              "L'adresse que vous avez saisi n'est pas recevable";
+          }
+        } else {
+          errorCity.textContent =
+            "La ville que vous avez saisi n'est pas valide";
+        }
+      } else {
+        errorAdress.textContent =
+          "L'adresse que vous avez saisi n'est pas recevable";
+      }
+    } else {
+      errorLastName.textContent =
+        "Le nom que vous avez saisi n'est pas recevable.";
+    }
+  } else {
+    errorFirstName.textContent =
+      "Le prénom que vous avez saisi n'est pas recevable, il ne doit contenir que des lettres";
+  }
+}
+
+// Fonction qui ecoute la validation du formulaire
+let form = document.querySelector("form.cart__order__form");
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  e.validForm;
+});

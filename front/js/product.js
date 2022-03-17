@@ -9,8 +9,6 @@ let idUrl = recupId.get("id");
 fetch("http://localhost:3000/api/products/" + idUrl)
   .then((resp) => resp.json())
   .then(function (produitUrl) {
-    // Chercher dans les produits, le produit pour lequel l'id est =
-
     let nomProduit = document.getElementById("title");
     let prixProduit = document.getElementById("price");
     let descriptionProduit = document.getElementById("description");
@@ -49,7 +47,8 @@ fetch("http://localhost:3000/api/products/" + idUrl)
       let optionProduit = {
         idProduit: produitUrl._id,
         colorProduit: colors.value,
-        qteProduit: inputHTML.value,
+        qttProduit: inputHTML.value,
+        prixProduit: produitUrl.price,
       };
 
       // on envoie les données de optionProduit dans le localStorage
@@ -57,16 +56,13 @@ fetch("http://localhost:3000/api/products/" + idUrl)
 
       if (stockProduit) {
         stockProduit.push(optionProduit);
+        // si le panier contient deja ce type de canapé, le remplacer par le nouveau
         localStorage.setItem("produits", JSON.stringify(stockProduit));
       } else {
         stockProduit = [];
         stockProduit.push(optionProduit);
         localStorage.setItem("produits", JSON.stringify(stockProduit));
       }
-      //let stockProduit = [];
-      //stockProduit.push(optionProduit);
-      //localStorage.setItem("produit", JSON.stringify(stockProduit));
-
       alert("Votre produit à bien été ajouté au panier");
     });
   })
