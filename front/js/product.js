@@ -48,22 +48,52 @@ fetch("http://localhost:3000/api/products/" + idUrl)
         idProduit: produitUrl._id,
         colorProduit: colors.value,
         qttProduit: inputHTML.value,
-        prixProduit: produitUrl.price,
       };
 
-      // on envoie les données de optionProduit dans le localStorage
-      let stockProduit = JSON.parse(localStorage.getItem("produits")); // comprend pas
+      let d = optionProduit.colorProduit[0] != undefined;
+      let v = optionProduit.qttProduit != 0;
 
-      if (stockProduit) {
-        stockProduit.push(optionProduit);
-        // si le panier contient deja ce type de canapé, le remplacer par le nouveau
-        localStorage.setItem("produits", JSON.stringify(stockProduit));
+      if (d) {
+        if (v) {
+          // on envoie les données de optionProduit dans le localStorage
+          let stockProduit = JSON.parse(localStorage.getItem("produits")); // comprend pas
+
+          if (stockProduit) {
+            // si le stockProduit contient deja ce type de canapé, le remplacer par le nouveau
+            // parcourir stockProduit
+            let produitDejaStocker;
+            for (produits of stockProduit) {
+              produitDejaStocker = stockProduit.find(
+                (a) => a.idProduit === optionProduit.idProduit
+              );
+            }
+
+            if (produitDejaStocker) {
+              // si un produit similaire a été trouvé
+              // on supprime le produit dans stockProduit
+              stockProduit.splice(stockProduit.indexOf(produitDejaStocker), 1);
+              // on push le nouveau produit
+              stockProduit.push(optionProduit);
+              localStorage.setItem("produits", JSON.stringify(stockProduit));
+            } else {
+              // si on ne recuperer pas de produit similaire, on push le produit
+              stockProduit.push(optionProduit);
+              localStorage.setItem("produits", JSON.stringify(stockProduit));
+            }
+          } else {
+            // si aucun produit n'est dans stockProduit
+            // On initialise stockproduit et on push
+            stockProduit = [];
+            stockProduit.push(optionProduit);
+            localStorage.setItem("produits", JSON.stringify(stockProduit));
+          }
+          alert("Votre produit à bien été ajouté au panier");
+        } else {
+          alert("Vous n'avez pas choisi de quantitée");
+        }
       } else {
-        stockProduit = [];
-        stockProduit.push(optionProduit);
-        localStorage.setItem("produits", JSON.stringify(stockProduit));
+        alert("Vous n'avez pas choisi votre couleur");
       }
-      alert("Votre produit à bien été ajouté au panier");
     });
   })
   .catch((err) => {

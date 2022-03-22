@@ -1,9 +1,35 @@
 // recuperer les donnees du panier (localStorage)
 let stockProduit = JSON.parse(localStorage.getItem("produits"));
 
+// recup totaux dans le DOM
+let htmlSpanQttTotal = document.getElementById("totalQuantity");
+let htmlSpanPrixTotal = document.getElementById("totalPrice");
+
+// fonction qui recuperer le prixTotal
+function sumPriceProduit(dataApi, stockProduit) {
+  let sumP = 0;
+  for (let produit of stockProduit) {
+    let idProduit = produit.idProduit;
+    let product = dataApi.find((produit) => produit._id === idProduit);
+    let priceProduit = produit.qttProduit * product.price;
+    sumP = sumP + priceProduit;
+  }
+  return sumP;
+}
+
+// fonction qui recupere la quantitée total
+function sumQttProduit(stockProduit) {
+  let sumQ = 0;
+  for (let produit of stockProduit) {
+    sumQ = sumQ + produit.qttProduit;
+  }
+  return sumQ;
+}
+
+// recupere les donnees de l'api
 fetch("http://localhost:3000/api/products")
   .then((resp) => resp.json())
-  .then(function (produits) {
+  .then(function (dataApi) {
     // Recuperer les id, color, qté dans les produits du localstorage
     for (let produit of stockProduit) {
       let idProduit = produit.idProduit;
@@ -11,7 +37,7 @@ fetch("http://localhost:3000/api/products")
       let qttProduit = produit.qttProduit;
 
       // Chercher dans l'API les produits au id correspondant à ceux du localstorage
-      let produitPanier = produits.find((produit) => produit._id === idProduit);
+      let produitDatApi = dataApi.find((produit) => produit._id === idProduit);
 
       // Pour chaque produits recuperer, créer le DOM
       let section = document.getElementById("cart__items");
@@ -60,7 +86,7 @@ fetch("http://localhost:3000/api/products")
       // add des atributs
       article.setAttribute("data-id", idProduit);
       article.setAttribute("data-color", colorProduit);
-      img.setAttribute("alt", produitPanier.altTxt);
+      img.setAttribute("alt", produitDatApi.altTxt);
       input.setAttribute("type", "number");
       input.setAttribute("name", input.className);
       input.setAttribute("min", 1);
@@ -68,16 +94,12 @@ fetch("http://localhost:3000/api/products")
       input.setAttribute("value", qttProduit);
 
       // add des données
-      img.src = produitPanier.imageUrl;
-      titre.textContent = produitPanier.name;
+      img.src = produitDatApi.imageUrl;
+      titre.textContent = produitDatApi.name;
       p1.textContent = colorProduit;
-      p2.textContent = produitPanier.price + " €";
+      p2.textContent = produitDatApi.price + " €";
       p3.textContent = "Qté : ";
       p4.textContent = "Supprimer";
-
-      // recup totaux dans le DOM
-      let htmlSpanQttTotal = document.getElementById("totalQuantity");
-      let htmlSpanPrixTotal = document.getElementById("totalPrice");
 
       // Calcule des totaux
       input.addEventListener("change", recupValueInput);
@@ -85,21 +107,9 @@ fetch("http://localhost:3000/api/products")
         let qtt = Number(e.target.value); //recupere la qttProduit au changement de l'input (number = on veux un nombre)*/
         produit.qttProduit = qtt; // copie la valeur dans le produit
 
-        let qttTotal = 0;
-        let prixTotal = 0;
-
-        for (let produit of stockProduit) {
-          // Recuperer la quantité total
-          qttTotal = qttTotal + produit.qttProduit;
-
-          // Recuperer le prix Total
-          let prixTotalProduit = produit.qttProduit * produit.prixProduit;
-          prixTotal = prixTotal + prixTotalProduit;
-        }
-
         // Envoie des totaux dans le DOM
-        htmlSpanQttTotal.textContent = qttTotal;
-        htmlSpanPrixTotal.textContent = prixTotal;
+        htmlSpanQttTotal.textContent = sumQttProduit(stockProduit);
+        htmlSpanPrixTotal.textContent = sumPriceProduit(dataApi, stockProduit);
         localStorage.setItem("produits", JSON.stringify(stockProduit));
       }
 
@@ -118,7 +128,7 @@ fetch("http://localhost:3000/api/products")
   });
 
 // Recuperer les inputs du formulaire
-let inputFirstName = document.querySelector("firstName");
+let inputFirstName = document.getElementById("firstName");
 let inputLastName = document.getElementById("lastName");
 let inputAdress = document.getElementById("address");
 let inputCity = document.getElementById("city");
@@ -131,22 +141,13 @@ let errorAdress = document.getElementById("addressErrorMsg");
 let errorCity = document.getElementById("cityErrorMsg");
 let errorEmail = document.getElementById("emailErrorMsg");
 
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-// ----------------------- //
-
 // Création des REGEX
-let firstNameRegex = /^[a-zA-Z-]$/;
-let lastNameRegex = /^[a-zA-Z]$/;
-let emailRegex = /^[a-zA-Z.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2-10}$/;
-let adressRegex = /^[a-zA-Z-][0-9]$/;
-let cityRegex = /^[a-zA-Z-]$/;
+let firstNameRegex = /^[a-zA-Z-]+$/;
+let lastNameRegex = /^[a-zA-Z]+$/;
+let emailRegex = /^[a-zA-Z0-9._-]+[@]{1}[a-zA-Z0-9._-]+[.]{1}[a-z]{2,10}$/;
+let adressRegex =
+  /^[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+$/;
+let cityRegex = /^[a-zA-Z-]+[\s]+[a-zA-Z-]+$/;
 
 // Fonction qui verifie les valeurs du formulaire et les envoie dans le back
 function validForm() {
@@ -178,11 +179,11 @@ function validForm() {
             //  Envoie des données au serv
             if (formulaire) {
               formulaire.push(valuesForm);
-              localStorage.setItem("user"), JSON.stringify(formulaire);
+              localStorage.setItem("user", JSON.stringify(formulaire));
             } else {
               formulaire = [];
               formulaire.push(valuesForm);
-              localStorage.setItem("user"), JSON.stringify(formulaire);
+              localStorage.setItem("user", JSON.stringify(formulaire));
             }
           } else {
             errorEmail.textContent =
@@ -208,7 +209,9 @@ function validForm() {
 
 // Fonction qui ecoute la validation du formulaire
 let form = document.querySelector("form.cart__order__form");
+
 form.addEventListener("submit", function (e) {
   e.preventDefault();
-  e.validForm;
+  validForm();
+  window.location.href = "./confirmation.html";
 });
