@@ -21,7 +21,7 @@ function sumPriceProduit(dataApi, stockProduit) {
 function sumQttProduit(stockProduit) {
   let sumQ = 0;
   for (let produit of stockProduit) {
-    sumQ = sumQ + produit.qttProduit;
+    sumQ = sumQ + Number(produit.qttProduit);
   }
   return sumQ;
 }
@@ -101,6 +101,10 @@ fetch("http://localhost:3000/api/products")
       p3.textContent = "Qté : ";
       p4.textContent = "Supprimer";
 
+      // On actualise les totaux dès qu'un produit est ajouté au panier
+      htmlSpanQttTotal.textContent = sumQttProduit(stockProduit);
+      htmlSpanPrixTotal.textContent = sumPriceProduit(dataApi, stockProduit);
+
       // Calcule des totaux
       input.addEventListener("change", recupValueInput);
       function recupValueInput(e) {
@@ -122,7 +126,10 @@ fetch("http://localhost:3000/api/products")
           return d !== produit;
         });
 
+        // on actualise stockProduit et on recalcule les totaux
         localStorage.setItem("produits", JSON.stringify(stockProduit));
+        htmlSpanQttTotal.textContent = sumQttProduit(stockProduit);
+        htmlSpanPrixTotal.textContent = sumPriceProduit(dataApi, stockProduit);
       }
     }
   });
