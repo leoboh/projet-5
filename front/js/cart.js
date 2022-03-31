@@ -156,61 +156,99 @@ let adressRegex =
   /^[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+$/;
 let cityRegex = /^[a-zA-Z-]+[\s]+[a-zA-Z-]+$/;
 
-// Fonction qui verifie les valeurs du formulaire et les envoie dans le back
+// Verification des inputs lors de la saisie d'écriture
+// test firstName
+let firstNameIsValid;
+inputFirstName.addEventListener("input", () => {
+  firstNameIsValid = firstNameRegex.test(inputFirstName.value);
+  if (firstNameIsValid) {
+    errorFirstName.textContent = "";
+  } else {
+    errorFirstName.textContent =
+      "Le prénom que vous avez saisi n'est pas recevable, il ne doit contenir que des lettres";
+    return false;
+  }
+});
+
+// test lastName
+let lastNameIsValid;
+inputLastName.addEventListener("input", () => {
+  lastNameIsValid = lastNameRegex.test(inputLastName.value);
+  if (lastNameIsValid) {
+    errorLastName.textContent = "";
+  } else {
+    errorLastName.textContent =
+      "Le nom que vous avez saisi n'est pas recevable.";
+  }
+});
+
+// test adress
+let adressIsValid;
+inputAdress.addEventListener("input", () => {
+  adressIsValid = adressRegex.test(inputAdress.value);
+  if (adressIsValid) {
+    errorAdress.textContent = "";
+  } else {
+    errorAdress.textContent =
+      "L'adresse que vous avez saisi n'est pas recevable";
+  }
+});
+
+// test city
+let cityIsValid;
+inputCity.addEventListener("input", () => {
+  cityIsValid = cityRegex.test(inputCity.value);
+  if (cityIsValid) {
+    errorCity.textContent = "";
+  } else {
+    errorCity.textContent = "La ville que vous avez saisi n'est pas valide";
+  }
+});
+
+// test email
+let emailIsValid;
+inputEmail.addEventListener("input", () => {
+  emailIsValid = emailRegex.test(inputEmail.value);
+  if (emailIsValid) {
+    errorEmail.textContent = "";
+  } else {
+    errorEmail.textContent =
+      "L'adresse que vous avez saisi n'est pas recevable";
+  }
+});
+
+// Fonction qui verifie les valeurs du formulaire
 function validForm() {
-  let testFirstName = firstNameRegex.test(inputFirstName.value);
-  if (testFirstName) {
-    let testLastName = lastNameRegex.test(inputLastName.value);
-
-    if (testLastName) {
-      let testAdress = adressRegex.test(inputAdress.value);
-
-      if (testAdress) {
-        let testCity = cityRegex.test(inputCity.value);
-
-        if (testCity) {
-          let testEmail = emailRegex.test(inputEmail.value);
-          if (testEmail) {
-            // Création de la variable qui va récupérer les valeurs du formulaire
-            let valuesForm = {
-              prenom: inputFirstName.value,
-              nom: inputLastName.value,
-              email: inputEmail.value,
-              adress: inputAdress.value,
-              city: inputCity.value,
-            };
-
-            // Création de la variable qui va envoyer les donnes au serv
-            let formulaire = JSON.parse(localStorage.getItem("user"));
-
-            //  Envoie des données au serv
-            if (formulaire) {
-              formulaire.push(valuesForm);
-              localStorage.setItem("user", JSON.stringify(formulaire));
-            } else {
-              formulaire = [];
-              formulaire.push(valuesForm);
-              localStorage.setItem("user", JSON.stringify(formulaire));
-            }
+  if (firstNameIsValid) {
+    if (lastNameIsValid) {
+      if (adressIsValid) {
+        if (cityIsValid) {
+          if (emailIsValid) {
+            return true;
           } else {
             errorEmail.textContent =
               "L'adresse que vous avez saisi n'est pas recevable";
+            return false;
           }
         } else {
           errorCity.textContent =
             "La ville que vous avez saisi n'est pas valide";
+          return false;
         }
       } else {
         errorAdress.textContent =
           "L'adresse que vous avez saisi n'est pas recevable";
+        return false;
       }
     } else {
       errorLastName.textContent =
         "Le nom que vous avez saisi n'est pas recevable.";
+      return false;
     }
   } else {
     errorFirstName.textContent =
       "Le prénom que vous avez saisi n'est pas recevable, il ne doit contenir que des lettres";
+    return false;
   }
 }
 
@@ -219,6 +257,37 @@ let form = document.querySelector("form.cart__order__form");
 
 form.addEventListener("submit", function (e) {
   e.preventDefault();
-  validForm();
-  window.location.href = "./confirmation.html";
+  let formIsValid = validForm();
+  if (formIsValid) {
+    // Récuperer données formulaire
+    let contact = {
+      firstName: inputFirstName.value,
+      lastName: inputLastName.value,
+      adress: inputAdress.value,
+      city: inputCity.value,
+      email: inputEmail.value,
+    };
+
+    // Recupérer la qtt des produits et instancier un objet pour la qtt recupérer
+    let prod = [];
+    for (let product of stockProduit) {
+      qtt = product.qttProduit;
+      for (let i = 0; i < qtt; i++) {
+        let v = product.idProduit;
+        prod.push(v);
+      }
+    }
+
+    // Envoyer les données au back
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      body: JSON.stringify(contact, prod),
+      headers: { "Content-Type": "application/json" },
+    });
+    //window.location.href = "./confirmation.html";
+  } else {
+    alert(
+      "Le formulaire est incomplet, veuillez vérfier que tous les champs sont bien remplis"
+    );
+  }
 });
