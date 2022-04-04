@@ -1,3 +1,6 @@
+/**
+ * Récuperer les données de l'api
+ */
 fetch("http://localhost:3000/api/products")
   .then((resp) => resp.json())
   .then(function (produits) {

@@ -1,4 +1,4 @@
-// Générer le numéro de commande
-let cmd = orderId;
+// Récuperer l'orderId
+let orderId = sessionStorage.getItem("orderId");
 let htmlSpanCommande = document.getElementById("orderId");
-htmlSpanCommande.textContent = cmd;
+htmlSpanCommande.textContent = orderId;

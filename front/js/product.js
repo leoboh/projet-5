@@ -5,7 +5,9 @@ let recupUrl = window.location.search;
 let recupId = new URLSearchParams(recupUrl);
 let idUrl = recupId.get("id");
 
-/// chercher donnes sur le serveur
+/**
+ * chercher donnes sur le serveur
+ */
 fetch("http://localhost:3000/api/products/" + idUrl)
   .then((resp) => resp.json())
   .then(function (produitUrl) {
@@ -39,7 +41,9 @@ fetch("http://localhost:3000/api/products/" + idUrl)
     let inputHTML = document.getElementById("quantity");
     let btnCommander = document.querySelector("#addToCart");
 
-    // click sur le boutton qui enregistre dans le panier (localstorage)
+    /**
+     * click sur le boutton qui enregistre dans le panier (localstorage)
+     */
     btnCommander.addEventListener("click", (e) => {
       e.preventDefault();
 
@@ -56,15 +60,19 @@ fetch("http://localhost:3000/api/products/" + idUrl)
       if (d) {
         if (v) {
           // on envoie les données de optionProduit dans le localStorage
-          let stockProduit = JSON.parse(localStorage.getItem("produits")); // comprend pas
+          let stockProduit = JSON.parse(localStorage.getItem("produits"));
 
           if (stockProduit) {
-            // si le stockProduit contient deja ce type de canapé, le remplacer par le nouveau
-            // parcourir stockProduit
+            /**
+             * si le stockProduit contient deja ce type de canapé avec la même couleur, le remplacer par le nouveau
+             * parcourir stockProduit
+             */
             let produitDejaStocker;
             for (produits of stockProduit) {
               produitDejaStocker = stockProduit.find(
-                (a) => a.idProduit === optionProduit.idProduit
+                (a) =>
+                  a.idProduit === optionProduit.idProduit &&
+                  a.colorProduit === optionProduit.colorProduit
               );
             }
 

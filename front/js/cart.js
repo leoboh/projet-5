@@ -5,7 +5,9 @@ let stockProduit = JSON.parse(localStorage.getItem("produits"));
 let htmlSpanQttTotal = document.getElementById("totalQuantity");
 let htmlSpanPrixTotal = document.getElementById("totalPrice");
 
-// fonction qui recuperer le prixTotal
+/**
+ * fonction qui recuperer le prixTotal
+ */
 function sumPriceProduit(dataApi, stockProduit) {
   let sumP = 0;
   for (let produit of stockProduit) {
@@ -17,7 +19,9 @@ function sumPriceProduit(dataApi, stockProduit) {
   return sumP;
 }
 
-// fonction qui recupere la quantitée total
+/**
+ * fonction qui recupere la quantitée total
+ */
 function sumQttProduit(stockProduit) {
   let sumQ = 0;
   for (let produit of stockProduit) {
@@ -26,7 +30,9 @@ function sumQttProduit(stockProduit) {
   return sumQ;
 }
 
-// recupere les donnees de l'api
+/**
+ * recupere les donnees de l'api
+ */
 fetch("http://localhost:3000/api/products")
   .then((resp) => resp.json())
   .then(function (dataApi) {
@@ -105,7 +111,9 @@ fetch("http://localhost:3000/api/products")
       htmlSpanQttTotal.textContent = sumQttProduit(stockProduit);
       htmlSpanPrixTotal.textContent = sumPriceProduit(dataApi, stockProduit);
 
-      // Calcule des totaux
+      /**
+       * Calcule des totaux
+       */
       input.addEventListener("change", recupValueInput);
       function recupValueInput(e) {
         let qtt = Number(e.target.value); //recupere la qttProduit au changement de l'input (number = on veux un nombre)*/
@@ -117,7 +125,9 @@ fetch("http://localhost:3000/api/products")
         localStorage.setItem("produits", JSON.stringify(stockProduit));
       }
 
-      // Supprimer un produit
+      /**
+       * Supprimer un produit
+       */
       p4.addEventListener("click", supprimeProduit);
       function supprimeProduit() {
         section.removeChild(article);
@@ -152,12 +162,13 @@ let errorEmail = document.getElementById("emailErrorMsg");
 let firstNameRegex = /^[a-zA-Z-]+$/;
 let lastNameRegex = /^[a-zA-Z]+$/;
 let emailRegex = /^[a-zA-Z0-9._-]+[@]{1}[a-zA-Z0-9._-]+[.]{1}[a-z]{2,10}$/;
-let adressRegex =
-  /^[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+[\s]+[a-zA-Z0-9]+$/;
-let cityRegex = /^[a-zA-Z-]+[\s]+[a-zA-Z-]+$/;
+let adressRegex = /^[a-zA-Z0-9\s-]+$/;
+let cityRegex = /^[a-zA-Z\s-]+$/;
 
-// Verification des inputs lors de la saisie d'écriture
-// test firstName
+/**
+ * Verification des inputs lors de la saisie d'écriture
+ * test firstName
+ */
 let firstNameIsValid;
 inputFirstName.addEventListener("input", () => {
   firstNameIsValid = firstNameRegex.test(inputFirstName.value);
@@ -170,7 +181,9 @@ inputFirstName.addEventListener("input", () => {
   }
 });
 
-// test lastName
+/**
+ * test lastName
+ */
 let lastNameIsValid;
 inputLastName.addEventListener("input", () => {
   lastNameIsValid = lastNameRegex.test(inputLastName.value);
@@ -182,7 +195,9 @@ inputLastName.addEventListener("input", () => {
   }
 });
 
-// test adress
+/**
+ * test adress
+ */
 let adressIsValid;
 inputAdress.addEventListener("input", () => {
   adressIsValid = adressRegex.test(inputAdress.value);
@@ -194,7 +209,9 @@ inputAdress.addEventListener("input", () => {
   }
 });
 
-// test city
+/**
+ * test city
+ */
 let cityIsValid;
 inputCity.addEventListener("input", () => {
   cityIsValid = cityRegex.test(inputCity.value);
@@ -205,7 +222,9 @@ inputCity.addEventListener("input", () => {
   }
 });
 
-// test email
+/**
+ * test email
+ */
 let emailIsValid;
 inputEmail.addEventListener("input", () => {
   emailIsValid = emailRegex.test(inputEmail.value);
@@ -217,7 +236,9 @@ inputEmail.addEventListener("input", () => {
   }
 });
 
-// Fonction qui verifie les valeurs du formulaire
+/**
+ * Fonction qui verifie les valeurs du formulaire
+ */
 function validForm() {
   if (firstNameIsValid) {
     if (lastNameIsValid) {
@@ -252,7 +273,9 @@ function validForm() {
   }
 }
 
-// Fonction qui ecoute la validation du formulaire
+/**
+ * Fonction qui ecoute la validation du formulaire
+ */
 let form = document.querySelector("form.cart__order__form");
 
 form.addEventListener("submit", function (e) {
@@ -263,28 +286,37 @@ form.addEventListener("submit", function (e) {
     let contact = {
       firstName: inputFirstName.value,
       lastName: inputLastName.value,
-      adress: inputAdress.value,
+      address: inputAdress.value,
       city: inputCity.value,
       email: inputEmail.value,
     };
 
     // Recupérer la qtt des produits et instancier un objet pour la qtt recupérer
-    let prod = [];
+    let products = [];
     for (let product of stockProduit) {
       qtt = product.qttProduit;
       for (let i = 0; i < qtt; i++) {
         let v = product.idProduit;
-        prod.push(v);
+        products.push(v);
       }
     }
 
-    // Envoyer les données au back
-    fetch("http://localhost:3000/api/products/order", {
+    let optionOrder = {
       method: "POST",
-      body: JSON.stringify(contact, prod),
+      body: JSON.stringify({ contact, products }),
       headers: { "Content-Type": "application/json" },
-    });
-    //window.location.href = "./confirmation.html";
+    };
+
+    /**
+     * Envoyer les données au back et recuperer les donnees envoyer en retour
+     */
+    fetch("http://localhost:3000/api/products/order", optionOrder)
+      .then((resp) => resp.json())
+      .then(function (orderId) {
+        // session storage pour pouvoir recuperer donnee dans confirm
+        sessionStorage.setItem("orderId", orderId.orderId);
+        window.location.href = "./confirmation.html";
+      });
   } else {
     alert(
       "Le formulaire est incomplet, veuillez vérfier que tous les champs sont bien remplis"
