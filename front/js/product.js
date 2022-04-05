@@ -62,11 +62,11 @@ fetch("http://localhost:3000/api/products/" + idUrl)
           // on envoie les données de optionProduit dans le localStorage
           let stockProduit = JSON.parse(localStorage.getItem("produits"));
 
+          /**
+           * si le stockProduit contient deja ce type de canapé avec la même couleur, le remplacer par le nouveau
+           * parcourir stockProduit
+           */
           if (stockProduit) {
-            /**
-             * si le stockProduit contient deja ce type de canapé avec la même couleur, le remplacer par le nouveau
-             * parcourir stockProduit
-             */
             let produitDejaStocker;
             for (produits of stockProduit) {
               produitDejaStocker = stockProduit.find(
